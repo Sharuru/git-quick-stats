@@ -288,7 +288,17 @@ function changelogs() {
 # Check if we are currently in a git repo.
 git rev-parse --is-inside-work-tree > /dev/null
 
-if [ $# -eq 1 ]
+# Modified
+if [ $# -gt 1 ]
+    then
+    echo "Modified.";
+    echo "--since=$2"
+    echo "--until=$3"
+    _since="--since=$2"
+    _until="--until=$3"
+fi
+
+if [ $# -gt 1 ]
   then
      case $1 in
         "suggestReviewers")
@@ -345,11 +355,11 @@ if [ $# -eq 1 ]
      exit 0;
 fi
 
-if [ $# -gt 1 ]
-    then
-    echo "Usage: git quick-stats <optional-command-to-execute-directly>";
-    exit 1;
-fi
+#Passing $since and $until directly, ignoring
+#if [ $# -gt 1 ]
+#    then
+#    echo "Usage: git quick-stats <optional-command-to-execute-directly>";
+#fi
 
 clear
 show_menu
