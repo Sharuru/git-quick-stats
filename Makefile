@@ -1,31 +1,43 @@
-prefix=/usr/local
+PREFIX ?= /usr/local
+_INSTDIR ?= $(DESTDIR)$(PREFIX)
+BINDIR ?= $(_INSTDIR)/bin
+MANDIR ?= $(_INSTDIR)/share/man
+TASK_DONE = echo -e "\n✓ $@ done\n"
 
-# files that need mode 755
-EXEC_FILES=git-quick-stats
+.PHONY: test
 
 all:
-	@echo "usage: make install"
-	@echo "       make reinstall"
-	@echo "       make uninstall"
-	@echo "       make test"
+	@echo "Usage:"
+	@echo "  make install"
+	@echo "  make reinstall"
+	@echo "  make uninstall"
+	@echo "  make test"
 
 help:
 	$(MAKE) all
+	@$(TASK_DONE)
 
 install:
-	install -m 0755 $(EXEC_FILES) $(prefix)/bin
-	git config --global alias.quick-stats '! $(prefix)/bin/$(EXEC_FILES)'
+	install -d -m 0755 $(BINDIR)
+	install -m 0755 git-quick-stats $(BINDIR)/git-quick-stats
+	$(MAKE) man
+	@$(TASK_DONE)
 
 uninstall:
-	test -d $(prefix)/bin && \
-	cd $(prefix)/bin && \
-	rm -f $(EXEC_FILES) && \
-	git config --global --unset alias.quick-stats
+	rm -f $(BINDIR)/git-quick-stats
+	rm -f $(MANDIR)/man1/git-quick-stats.1
+	@$(TASK_DONE)
 
 reinstall:
-	git pull origin master
-	$(MAKE) uninstall && \
+	@curl -sO https://raw.githubusercontent.com/arzzen/git-quick-stats/master/git-quick-stats
+	@curl -sO https://raw.githubusercontent.com/arzzen/git-quick-stats/master/git-quick-stats.1
 	$(MAKE) install
+	@$(TASK_DONE)
+
+man:
+	install -d -m 0755 $(MANDIR)/man1/
+	install -m 0644 git-quick-stats.1 $(MANDIR)/man1/
 
 test:
 	tests/commands_test.sh
+	@$(TASK_DONE)
